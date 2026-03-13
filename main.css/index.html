@@ -3,38 +3,705 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Theodrose | Raven Main</title>
-<link rel="stylesheet" href="styles.css">
-</head>
+<title>THEODROSE // TEKKEN 8 PROFILE</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #0f0f1a;
+    --red: #ff1a1a;
+    --red2: #cc0000;
+    --gold: #ffd700;
+    --gold2: #ffaa00;
+    --cyan: #00e5ff;
+    --white: #f0f0f0;
+    --grey: #888;
+    --panel: rgba(255,255,255,0.03);
+    --border: rgba(255,26,26,0.3);
+  }
 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* CRT flicker */
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.85; }
+    94% { opacity: 1; }
+    96% { opacity: 0.9; }
+    97% { opacity: 1; }
+  }
+  body { animation: flicker 8s infinite; }
+
+  /* Grid background */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,26,26,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,26,26,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: 0;
+  }
+
+  .grid-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255,26,26,0.12) 0%, transparent 70%);
+  }
+
+  /* Main container */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* Header / coin insert area */
+  .coin-prompt {
+    text-align: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    animation: blink 1.2s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* Title */
+  .title-wrap {
+    text-align: center;
+    margin-bottom: 50px;
+    position: relative;
+  }
+
+  .title-wrap::before {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--red), var(--gold), var(--red), transparent);
+    margin-bottom: 20px;
+    animation: pulse-line 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-line {
+    0%,100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .game-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(8px, 2vw, 13px);
+    color: var(--grey);
+    letter-spacing: 6px;
+    margin-bottom: 12px;
+  }
+
+  .player-name {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(36px, 8vw, 72px);
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    position: relative;
+    display: inline-block;
+    color: var(--white);
+    text-shadow:
+      0 0 10px rgba(255,26,26,0.8),
+      0 0 30px rgba(255,26,26,0.4),
+      0 0 60px rgba(255,26,26,0.2);
+  }
+
+  .player-name::before {
+    content: 'THEODROSE';
+    position: absolute;
+    inset: 0;
+    color: var(--red);
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+    transform: translateX(-3px);
+    opacity: 0.6;
+  }
+
+  .player-name::after {
+    content: 'THEODROSE';
+    position: absolute;
+    inset: 0;
+    color: var(--cyan);
+    clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+    transform: translateX(3px);
+    opacity: 0.4;
+  }
+
+  @keyframes glitch {
+    0%,90%,100% { transform: translateX(0); }
+    92% { transform: translateX(-4px); }
+    94% { transform: translateX(4px); }
+    96% { transform: translateX(-2px); }
+  }
+  .player-name { animation: glitch 6s infinite; }
+
+  .title-wrap::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--red), var(--gold), var(--red), transparent);
+    margin-top: 20px;
+  }
+
+  /* Main grid */
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 600px) {
+    .profile-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Panels */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .panel:hover {
+    border-color: var(--red);
+    box-shadow: 0 0 20px rgba(255,26,26,0.15), inset 0 0 20px rgba(255,26,26,0.03);
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--red), var(--gold), var(--red));
+  }
+
+  /* Corner decorations */
+  .panel::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 20px; height: 20px;
+    border-bottom: 2px solid var(--red);
+    border-right: 2px solid var(--red);
+  }
+
+  .panel-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--red);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-label::before {
+    content: '▶';
+    color: var(--gold);
+    font-size: 8px;
+  }
+
+  /* Character panel — full width */
+  .character-panel {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    min-height: 160px;
+  }
+
+  .char-icon {
+    flex-shrink: 0;
+    width: 110px;
+    height: 110px;
+    border: 2px solid var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: rgba(255,26,26,0.05);
+  }
+
+  .char-icon-inner {
+    font-size: 64px;
+    line-height: 1;
+    filter: drop-shadow(0 0 12px rgba(255,26,26,0.8));
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .char-icon::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,26,26,0.1) 0%, transparent 60%);
+  }
+
+  .char-info { flex: 1; }
+
+  .char-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(255,26,26,0.5);
+    margin-bottom: 6px;
+  }
+
+  .char-sub {
+    font-size: 11px;
+    color: var(--grey);
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+  }
+
+  .char-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    color: var(--gold);
+    letter-spacing: 1px;
+    background: rgba(255,215,0,0.05);
+  }
+
+  /* Rank panel */
+  .rank-display {
+    text-align: center;
+    padding: 10px 0;
+  }
+
+  .rank-crown {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 0 12px rgba(255,215,0,0.8));
+    animation: float 2.5s ease-in-out infinite;
+  }
+
+  .rank-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(16px, 3vw, 24px);
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(255,215,0,0.6);
+    margin-bottom: 4px;
+  }
+
+  .rank-sub {
+    font-size: 10px;
+    color: var(--grey);
+    letter-spacing: 2px;
+  }
+
+  .rank-stars {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .star {
+    color: var(--gold);
+    font-size: 14px;
+    animation: star-pulse 1.5s ease-in-out infinite;
+  }
+  .star:nth-child(2) { animation-delay: 0.1s; }
+  .star:nth-child(3) { animation-delay: 0.2s; }
+  .star:nth-child(4) { animation-delay: 0.3s; }
+  .star:nth-child(5) { animation-delay: 0.4s; }
+
+  @keyframes star-pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(0.9); }
+  }
+
+  /* Stats */
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .stat-row:last-child { border-bottom: none; }
+
+  .stat-name {
+    font-size: 10px;
+    color: var(--grey);
+    letter-spacing: 2px;
+  }
+
+  .stat-val {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--white);
+  }
+
+  .stat-val.gold { color: var(--gold); }
+  .stat-val.red { color: var(--red); }
+  .stat-val.cyan { color: var(--cyan); }
+
+  /* Bar */
+  .stat-bar-wrap {
+    margin-top: 6px;
+    margin-bottom: 14px;
+  }
+
+  .stat-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--grey);
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+  }
+
+  .stat-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.07);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-bar-fill {
+    height: 100%;
+    position: relative;
+    animation: bar-grow 1.5s ease-out forwards;
+    transform-origin: left;
+  }
+
+  @keyframes bar-grow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  .bar-red { background: linear-gradient(90deg, var(--red2), var(--red)); width: var(--w); }
+  .bar-gold { background: linear-gradient(90deg, var(--gold2), var(--gold)); width: var(--w); }
+  .bar-cyan { background: linear-gradient(90deg, #0099aa, var(--cyan)); width: var(--w); }
+
+  .stat-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 3px; height: 100%;
+    background: white;
+    box-shadow: 0 0 6px white;
+    opacity: 0.8;
+  }
+
+  /* Moves / playstyle panel */
+  .move-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .move-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 11px;
+    line-height: 1.6;
+    color: #ccc;
+    border-left: 2px solid var(--red);
+    padding-left: 12px;
+  }
+
+  .move-key {
+    background: rgba(255,26,26,0.12);
+    border: 1px solid rgba(255,26,26,0.4);
+    color: var(--gold);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    padding: 3px 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Game selector pills */
+  .game-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,26,26,0.08);
+    border: 1px solid var(--red);
+    padding: 8px 16px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--red);
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+  }
+
+  .game-badge::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--red);
+    animation: blink 1s step-end infinite;
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    margin-top: 40px;
+    text-align: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: rgba(255,255,255,0.15);
+    letter-spacing: 3px;
+  }
+
+  .bottom-bar span {
+    color: var(--red);
+    opacity: 0.5;
+  }
+
+  /* Decorative corners on main wrapper */
+  .main-frame {
+    position: relative;
+    border: 1px solid rgba(255,26,26,0.15);
+    padding: 30px;
+  }
+
+  .corner {
+    position: absolute;
+    width: 24px; height: 24px;
+  }
+  .corner-tl { top: -1px; left: -1px; border-top: 2px solid var(--red); border-left: 2px solid var(--red); }
+  .corner-tr { top: -1px; right: -1px; border-top: 2px solid var(--red); border-right: 2px solid var(--red); }
+  .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--red); border-left: 2px solid var(--red); }
+  .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--red); border-right: 2px solid var(--red); }
+
+  /* Scroll animations */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel {
+    animation: fade-up 0.6s ease-out both;
+  }
+
+  .panel:nth-child(1) { animation-delay: 0.1s; }
+  .panel:nth-child(2) { animation-delay: 0.2s; }
+  .panel:nth-child(3) { animation-delay: 0.3s; }
+  .panel:nth-child(4) { animation-delay: 0.4s; }
+  .panel:nth-child(5) { animation-delay: 0.5s; }
+</style>
+</head>
 <body>
 
-<header>
-<h1>Theodrose</h1>
-<p>Tekken 8 Raven Main • Tekken King</p>
-</header>
+<div class="grid-bg"></div>
 
-<section class="card">
-<h2>Stats</h2>
-<ul>
-<li>Rank: Tekken King</li>
-<li>Main: Raven</li>
-<li>Controller: Leverless</li>
-<li>Prowess: ~200k</li>
-</ul>
-</section>
+<div class="container">
+  <div class="coin-prompt">— INSERT COIN TO CONTINUE —</div>
 
-<section class="card">
-<h2>About</h2>
-<p>
-Process Engineer. Competitive Tekken player.  
-Working toward mastering Raven's pressure and movement.
-</p>
-</section>
+  <div class="title-wrap">
+    <div class="game-title">TEKKEN 8 // PLAYER PROFILE</div>
+    <div class="player-name">THEODROSE</div>
+  </div>
 
-<footer>
-<p>© 2026 Theodrose</p>
-</footer>
+  <div style="text-align:center; margin-bottom: 30px;">
+    <div class="game-badge">TEKKEN 8 &nbsp;•&nbsp; ACTIVE PLAYER</div>
+  </div>
+
+  <div class="main-frame">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <div class="profile-grid">
+
+      <!-- Character Panel -->
+      <div class="panel character-panel">
+        <div class="char-icon">
+          <div class="char-icon-inner">🥷</div>
+        </div>
+        <div class="char-info">
+          <div class="panel-label">MAIN CHARACTER</div>
+          <div class="char-name">RAVEN</div>
+          <div class="char-sub">SPECIAL FORCES AGENT &nbsp;·&nbsp; NINJUTSU</div>
+          <div class="char-tags">
+            <span class="tag">RUSHDOWN</span>
+            <span class="tag">MIX-UP KING</span>
+            <span class="tag">HIGH EXECUTION</span>
+            <span class="tag">TELEPORTER</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rank Panel -->
+      <div class="panel">
+        <div class="panel-label">PEAK RANK</div>
+        <div class="rank-display">
+          <span class="rank-crown">👑</span>
+          <div class="rank-title">TEKKEN KING</div>
+          <div class="rank-sub">ELITE TIER // TOP BRACKET</div>
+          <div class="rank-stars">
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Panel -->
+      <div class="panel">
+        <div class="panel-label">BATTLE STATS</div>
+
+        <div class="stat-row">
+          <span class="stat-name">GAME</span>
+          <span class="stat-val cyan">TEKKEN 8</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">PEAK RANK</span>
+          <span class="stat-val gold">TEKKEN KING</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">PLAYSTYLE</span>
+          <span class="stat-val red">AGGRESSIVE</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">EXECUTION</span>
+          <span class="stat-val">HIGH</span>
+        </div>
+
+        <div style="margin-top: 16px;">
+          <div class="stat-bar-wrap">
+            <div class="stat-bar-label"><span>OFFENSE</span><span>90%</span></div>
+            <div class="stat-bar"><div class="stat-bar-fill bar-red" style="--w:90%"></div></div>
+          </div>
+          <div class="stat-bar-wrap">
+            <div class="stat-bar-label"><span>MIX-UP</span><span>88%</span></div>
+            <div class="stat-bar"><div class="stat-bar-fill bar-gold" style="--w:88%"></div></div>
+          </div>
+          <div class="stat-bar-wrap">
+            <div class="stat-bar-label"><span>EXECUTION</span><span>82%</span></div>
+            <div class="stat-bar"><div class="stat-bar-fill bar-cyan" style="--w:82%"></div></div>
+          </div>
+          <div class="stat-bar-wrap">
+            <div class="stat-bar-label"><span>DEFENSE</span><span>74%</span></div>
+            <div class="stat-bar"><div class="stat-bar-fill bar-red" style="--w:74%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Moves / Playstyle Panel -->
+      <div class="panel">
+        <div class="panel-label">SIGNATURE MOVES</div>
+        <ul class="move-list">
+          <li class="move-item">
+            <span class="move-key">f,f+2</span>
+            <span>Shadow Blade — Raven's iconic lunging slash, great for punishing from range</span>
+          </li>
+          <li class="move-item">
+            <span class="move-key">b+1</span>
+            <span>Teleport Cancel — confuses opponents with sudden disappearing mix-ups</span>
+          </li>
+          <li class="move-item">
+            <span class="move-key">WS+4</span>
+            <span>Rising Kick — punishing low launcher into full juggle combo</span>
+          </li>
+          <li class="move-item">
+            <span class="move-key">d/f+2</span>
+            <span>Elbow Launch — fastest launcher in arsenal, the bread-and-butter punisher</span>
+          </li>
+          <li class="move-item">
+            <span class="move-key">HEAT</span>
+            <span>Heat Smash activation for aggressive pressure and burst damage</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Playstyle Philosophy -->
+      <div class="panel" style="grid-column: 1 / -1;">
+        <div class="panel-label">PLAYSTYLE PROFILE</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-top: 8px;">
+          <div style="border: 1px solid var(--border); padding: 16px; text-align: center; background: rgba(255,26,26,0.03);">
+            <div style="font-size: 28px; margin-bottom: 8px;">⚡</div>
+            <div style="font-family: 'Press Start 2P', monospace; font-size: 7px; color: var(--gold); margin-bottom: 6px; letter-spacing: 2px;">SPEED</div>
+            <div style="font-size: 10px; color: #aaa; line-height: 1.6;">Fast paced, never lets the opponent breathe — relentless pressure and frame traps</div>
+          </div>
+          <div style="border: 1px solid var(--border); padding: 16px; text-align: center; background: rgba(255,26,26,0.03);">
+            <div style="font-size: 28px; margin-bottom: 8px;">🎭</div>
+            <div style="font-family: 'Press Start 2P', monospace; font-size: 7px; color: var(--gold); margin-bottom: 6px; letter-spacing: 2px;">MIND GAMES</div>
+            <div style="font-size: 10px; color: #aaa; line-height: 1.6;">Teleport & shadow clones make it impossible to predict the next attack</div>
+          </div>
+          <div style="border: 1px solid var(--border); padding: 16px; text-align: center; background: rgba(255,26,26,0.03);">
+            <div style="font-size: 28px; margin-bottom: 8px;">💀</div>
+            <div style="font-family: 'Press Start 2P', monospace; font-size: 7px; color: var(--gold); margin-bottom: 6px; letter-spacing: 2px;">LETHAL</div>
+            <div style="font-size: 10px; color: #aaa; line-height: 1.6;">One opening is all it takes — high damage combos that finish rounds instantly</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end profile-grid -->
+  </div><!-- end main-frame -->
+
+  <div class="bottom-bar">
+    <span>©</span> THEODROSE &nbsp;·&nbsp; TEKKEN 8 PROFILE &nbsp;·&nbsp; <span>ALL RIGHTS RESERVED</span>
+  </div>
+</div>
 
 </body>
 </html>
