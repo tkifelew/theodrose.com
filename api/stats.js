@@ -1,68 +1,91 @@
-// api/stats.js — Vercel serverless proxy for wank.wavu.wiki
-// Searches for player by name, returns their stats as JSON
-
+// api/stats.js — fetches Theodrose's real wank.wavu.wiki data
 export default async function handler(req, res) {
-  // Allow CORS from your own domain
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
-  res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate'); // cache 5 min
+  res.setHeader('Cache-Control', 's-maxage=120, stale-while-revalidate');
 
-  const { player = 'Theodrose' } = req.query;
+  const PLAYER_ID = '4QRqMQqTfm4G';
+  const url = `https://wank.wavu.wiki/player/${PLAYER_ID}`;
 
   try {
-    // Step 1: Search for the player to get their internal ID
-    const searchUrl = `https://wank.wavu.wiki/search?q=${encodeURIComponent(player)}&_format=json`;
-    const searchRes = await fetch(searchUrl, {
+    const response = await fetch(url, {
       headers: {
+        'Accept': 'text/html,application/xhtml+xml',
         'Accept-Encoding': 'gzip, deflate, br',
-        'User-Agent': 'theodrose.com/1.0',
+        'User-Agent': 'Mozilla/5.0 (compatible; theodrose.com/1.0)',
       },
     });
 
-    if (!searchRes.ok) {
-      return res.status(502).json({ error: 'Failed to reach wank.wavu.wiki', status: searchRes.status });
+    if (!response.ok) {
+      return res.status(502).json({ error: 'Failed to reach wank.wavu.wiki', status: response.status });
     }
 
-    const searchData = await searchRes.json();
+    const html = await response.text();
 
-    // The search returns an array of player objects
-    if (!searchData || searchData.length === 0) {
-      return res.status(404).json({ error: 'Player not found', player });
+    // ── Parse character ratings ──────────────────────────────────
+    const characters = [];
+    const charBlockRegex = /([A-Za-z][A-Za-z\s\-]{1,20}?)\s*\nμ\s+([\d.]+)\s*\nσ²\s+([\d.]+)\s*\n([\d,]+)\s+games/g;
+    let m;
+    const skip = new Set(['Leaderboard','Unqualified','Provisional','Ratings','Theodrose','All characters','America']);
+    while ((m = charBlockRegex.exec(html)) !== null) {
+      const name = m[1].trim();
+      if (skip.has(name)) continue;
+      characters.push({
+        name,
+        mu: parseFloat(m[2]),
+        sigma2: parseFloat(m[3]),
+        games: parseInt(m[4].replace(/,/g, ''), 10),
+      });
     }
 
-    // Find the closest name match (case-insensitive)
-    const match = searchData.find(
-      (p) => p.name?.toLowerCase() === player.toLowerCase()
-    ) || searchData[0];
-
-    if (!match?.id) {
-      return res.status(404).json({ error: 'No player ID found', raw: searchData });
+    // ── Parse match rows from table ──────────────────────────────
+    // Row format: "13 Mar 26 3:04 | Theodrose Raven 1550 -8 | 1-3 | 1648 +7 Victor Exodus803 | h2h"
+    const matches = [];
+    const rowRe = /(\d{1,2}\s+\w+\s+\d{2})\s+[\d:]+\s*\|\s*Theodrose\s+(\S+(?:\s+\S+)?)\s+(\d{3,4})\s+([+\-]\d+)\s*\|\s*(\d+)-(\d+)\s*\|\s*(\d{3,4})\s+([+\-]\d+)\s+([\w][^|[]+?)\s+\[([^\]]+)\]/g;
+    while ((m = rowRe.exec(html)) !== null) {
+      const myScore  = parseInt(m[5], 10);
+      const oppScore = parseInt(m[6], 10);
+      matches.push({
+        date:      m[1].trim(),
+        myChar:    m[2].trim(),
+        myRating:  parseInt(m[3], 10),
+        myDelta:   parseInt(m[4], 10),
+        myScore,
+        oppScore,
+        oppRating: parseInt(m[7], 10),
+        oppDelta:  parseInt(m[8], 10),
+        oppChar:   m[9].trim(),
+        oppName:   m[10].trim(),
+        won:       myScore > oppScore,
+      });
+      if (matches.length >= 15) break;
     }
 
-    // Step 2: Fetch the player's full profile
-    const profileUrl = `https://wank.wavu.wiki/player/${match.id}?_format=json`;
-    const profileRes = await fetch(profileUrl, {
-      headers: {
-        'Accept-Encoding': 'gzip, deflate, br',
-        'User-Agent': 'theodrose.com/1.0',
-      },
-    });
+    // ── Summary ──────────────────────────────────────────────────
+    const totalGames = characters.reduce((s, c) => s + c.games, 0);
+    const wins       = matches.filter(x => x.won).length;
+    const losses     = matches.filter(x => !x.won).length;
+    const winRate    = wins + losses > 0 ? Math.round((wins / (wins + losses)) * 100) : null;
+    const bestRating = characters.reduce((b, c) => Math.max(b, c.mu), 0);
+    const mainChar   = [...characters].sort((a, b) => b.games - a.games)[0];
 
-    if (!profileRes.ok) {
-      return res.status(502).json({ error: 'Failed to fetch player profile', status: profileRes.status });
-    }
-
-    const profileData = await profileRes.json();
-
-    // Return merged data
     return res.status(200).json({
-      id: match.id,
-      name: match.name || player,
-      profile: profileData,
+      playerName: 'Theodrose',
+      playerId: PLAYER_ID,
+      characters: characters.sort((a, b) => b.mu - a.mu),
+      matches,
+      summary: {
+        totalGames,
+        winRate,
+        recentWins: wins,
+        recentLosses: losses,
+        bestRating: Math.round(bestRating),
+        mainChar: mainChar?.name ?? 'Raven',
+        mainCharGames: mainChar?.games ?? 0,
+      },
     });
 
   } catch (err) {
-    console.error('Stats proxy error:', err);
-    return res.status(500).json({ error: 'Internal server error', message: err.message });
+    console.error('Stats error:', err);
+    return res.status(500).json({ error: err.message });
   }
 }
