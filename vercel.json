@@ -1,12 +1,4 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false,
-  "functions": {
-    "api/stats.js": {
-      "runtime": "edge"
-    }
-  },
-  "rewrites": [
-    { "source": "/api/stats", "destination": "/api/stats.js" }
-  ]
+  "trailingSlash": false
 }
