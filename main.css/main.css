@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theodrose | Raven Main</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header>
+<h1>Theodrose</h1>
+<p>Tekken 8 Raven Main • Tekken King</p>
+</header>
+
+<section class="card">
+<h2>Stats</h2>
+<ul>
+<li>Rank: Tekken King</li>
+<li>Main: Raven</li>
+<li>Controller: Leverless</li>
+<li>Prowess: ~200k</li>
+</ul>
+</section>
+
+<section class="card">
+<h2>About</h2>
+<p>
+Process Engineer. Competitive Tekken player.  
+Working toward mastering Raven's pressure and movement.
+</p>
+</section>
+
+<footer>
+<p>© 2026 Theodrose</p>
+</footer>
+
+</body>
+</html>
